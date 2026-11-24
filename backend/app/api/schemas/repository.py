@@ -30,6 +30,17 @@ class FileAnalysisOut(BaseModel):
     syntax_error: str | None = None
 
 
+# --- STAGE 2: Static Analysis ---
+class FindingOut(BaseModel):
+    file: str
+    line: int
+    column: int
+    code: str
+    message: str
+    severity: str
+    tool: str
+
+
 class RepositoryAnalysisOut(BaseModel):
     repo_id: str
     project_types: list[str]
@@ -44,32 +55,27 @@ class RepositoryAnalysisOut(BaseModel):
     findings: list[FindingOut]
     dependencies: dict[str, list[str]]
 
-class FindingOut(BaseModel):
-    file: str
-    line: int
-    column: int
-    code: str
-    message: str
-    severity: str
-    tool: str
 
-    # Add at the bottom of the file
+# --- STAGE 3 & 4: Test Generation & Execution ---
 class GenerateTestRequest(BaseModel):
     repo_id: str
     file: str
     function_name: str
 
+
 class GeneratedTestOut(BaseModel):
     function_name: str
     file: str
     code: str
-    source_code: str # <-- Add this
+    source_code: str
     is_valid: bool
     error_message: str = ""
 
-# Add at the bottom of the file
+
 class ExecuteTestRequest(BaseModel):
     test_code: str
+    source_code: str = ""
+
 
 class ExecutionResultOut(BaseModel):
     passed: bool
@@ -77,12 +83,16 @@ class ExecutionResultOut(BaseModel):
     stderr: str
     duration: float = 0.0
 
+
+# --- STAGE 5: Mutation Evaluation ---
 class MutationEvaluationRequest(BaseModel):
     source_code: str
     test_code: str
+
 
 class MutationResultOut(BaseModel):
     score: float
     killed: int
     survived: int
     total: int
+    error: str | None = None
