@@ -95,4 +95,6 @@ class MutationResultOut(BaseModel):
     killed: int
     survived: int
     total: int
-    error: str | None = None
+    error: str | None = None   
+
+    
