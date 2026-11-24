@@ -1,0 +1,31 @@
+services:
+  # Backend API (Docker)
+  - type: web
+    name: probe-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: CORS_ORIGINS
+        sync: false            # set to your frontend URL, e.g. https://probe-web.onrender.com
+      - key: ANTHROPIC_API_KEY
+        sync: false            # optional; leave empty for heuristic mode
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5-5
+      - key: MUTANTS
+        value: "6"
+      - key: MAX_JOBS
+        value: "1"
+
+  # Frontend (React static site)
+  - type: web
+    name: probe-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false            # set to your backend URL, e.g. https://probe-api.onrender.com
