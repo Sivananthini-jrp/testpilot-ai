@@ -1,23 +1,17 @@
-import json
-from fastapi import APIRouter
-from app.config import settings
-from app.utils.logger import get_logger
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app import models
 
-log = get_logger(__name__)
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
+@router.get("/stats")
+async def get_stats(db: Session = Depends(get_db)):
+    total = db.query(models.TestReport).count()
+    passed = db.query(models.TestReport).filter(models.TestReport.passed == True).count()
+    return {"total": total, "passed": passed, "failed": total - passed}
+
 @router.get("/reports")
-async def get_reports():
-    report_dir = settings.upload_dir.parent / "reports"
-    if not report_dir.exists():
-        return []
-        
-    reports = []
-    # Read the 20 most recent reports
-    for file in sorted(report_dir.glob("*.json"), reverse=True)[:20]:
-        try:
-            reports.append(json.loads(file.read_text(encoding="utf-8")))
-        except Exception as e:
-            log.error(f"Failed to read report {file}: {e}")
-            
-    return REPORTS_DB
+async def get_reports(db: Session = Depends(get_db)):
+    reports = db.query(models.TestReport).order_by(models.TestReport.created_at.desc()).limit(50).all()
+    return [{"id": r.id, "repo_id": r.repo_id, "function_name": r.function_name, "passed": r.passed, "stdout": r.stdout, "stderr": r.stderr, "timestamp": r.created_at.isoformat()} for r in reports]

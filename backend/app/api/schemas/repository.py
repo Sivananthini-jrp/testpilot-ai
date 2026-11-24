@@ -97,4 +97,10 @@ class MutationResultOut(BaseModel):
     total: int
     error: str | None = None   
 
-    
+class SaveReportRequest(BaseModel):
+    repo_id: str
+    function_name: str
+    passed: bool
+    stdout: str
+    stderr: str
+    duration: float = 0.0

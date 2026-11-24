@@ -8,4 +8,5 @@ bandit==1.7.9
 openai>=1.55.3
 pytest>=8.0.0
 pytest-json-report>=1.5.0
-mutmut==2.4.5
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9

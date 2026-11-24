@@ -1,7 +1,9 @@
 import shutil
+import json
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile, Depends
+from sqlalchemy.orm import Session
 
 from app.analyzers.ast_analyzer import analyze_repository
 from app.analyzers.dependency_analyzer import build_dependency_graph
@@ -13,13 +15,15 @@ from app.core.project_detector import detect_project_types
 from app.core.repository_manager import create_workspace, delete_workspace, new_repo_id
 from app.utils.file_utils import UnsafeArchiveError, safe_extract_zip
 from app.utils.logger import get_logger
+from app.database import get_db
+from app import models
 
 log = get_logger(__name__)
 router = APIRouter(prefix="/repositories", tags=["repositories"])
 
 
 @router.post("/upload", response_model=RepositoryAnalysisOut)
-async def upload_repository(file: UploadFile = File(...)) -> RepositoryAnalysisOut:
+async def upload_repository(file: UploadFile = File(...), db: Session = Depends(get_db)) -> RepositoryAnalysisOut:
     if not file.filename or not file.filename.lower().endswith(".zip"):
         raise HTTPException(400, "Only .zip files are accepted")
 
@@ -56,6 +60,15 @@ async def upload_repository(file: UploadFile = File(...)) -> RepositoryAnalysisO
         # Run static analysis and dependency graph
         findings = analyze_static(source_dir)
         dependencies = build_dependency_graph(source_dir)
+        
+        # Save to Database
+        db_repo = models.Repository(
+            id=repo_id,
+            project_types=json.dumps(project_types),
+            languages=json.dumps(languages)
+        )
+        db.add(db_repo)
+        db.commit()
 
         return RepositoryAnalysisOut(
             repo_id=repo_id,
@@ -63,7 +76,7 @@ async def upload_repository(file: UploadFile = File(...)) -> RepositoryAnalysisO
             languages=languages,
             findings=[FindingOut(**f) for f in findings],
             dependencies=dependencies,
-            **analysis, # this unpacks python_files, total_functions, etc.
+            **analysis,
         )
 
     except HTTPException:
@@ -73,3 +86,16 @@ async def upload_repository(file: UploadFile = File(...)) -> RepositoryAnalysisO
         log.exception("Upload failed for repo %s", repo_id)
         delete_workspace(repo_id)
         raise HTTPException(500, f"Analysis failed: {e}")
+
+
+@router.get("/list")
+async def list_repositories(db: Session = Depends(get_db)):
+    repos = db.query(models.Repository).order_by(models.Repository.created_at.desc()).all()
+    return [
+        {
+            "repo_id": r.id, 
+            "project_types": json.loads(r.project_types), 
+            "languages": json.loads(r.languages), 
+            "date": r.created_at.isoformat()
+        } for r in repos
+    ]
