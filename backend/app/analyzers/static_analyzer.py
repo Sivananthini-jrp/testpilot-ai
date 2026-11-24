@@ -18,6 +18,17 @@ class Finding:
     severity: str  # "error", "warning", "info"
     tool: str      # "ruff" or "bandit"
 
+def _get_relative_path(file_path: str, repo_dir: Path) -> str:
+    """Safely get the relative path, handling absolute vs relative paths on Linux/Windows."""
+    try:
+        # Resolve both to absolute paths to ensure they match
+        abs_file = Path(file_path).resolve()
+        abs_repo = repo_dir.resolve()
+        return str(abs_file.relative_to(abs_repo)).replace("\\", "/")
+    except ValueError:
+        # Fallback if the file is somehow outside the repo
+        return file_path
+
 def run_ruff(repo_dir: Path) -> list[Finding]:
     """Run Ruff and parse JSON output."""
     cmd = [sys.executable, "-m", "ruff", "check", str(repo_dir), "--output-format=json", "--exit-zero"]
@@ -30,15 +41,13 @@ def run_ruff(repo_dir: Path) -> list[Finding]:
 
     findings = []
     for item in data:
-        # Ruff doesn't output line lengths, just col. Map severity based on code prefix
-        # E = pycodestyle error, F = pyflakes, W = warning
         code = item.get("code", "")
         severity = "warning"
         if code.startswith("E") or code.startswith("F"):
             severity = "error"
             
         findings.append(Finding(
-            file=str(Path(item["filename"]).relative_to(repo_dir)).replace("\\", "/"),
+            file=_get_relative_path(item["filename"], repo_dir),
             line=item["location"]["row"],
             column=item["location"]["column"],
             code=code,
@@ -52,7 +61,6 @@ def run_bandit(repo_dir: Path) -> list[Finding]:
     """Run Bandit and parse JSON output."""
     cmd = [sys.executable, "-m", "bandit", "-r", str(repo_dir), "-f", "json", "-q"]
     try:
-        # Bandit exits with code 1 if issues are found, so we don't use check=True
         result = subprocess.run(cmd, capture_output=True, text=True)
         data = json.loads(result.stdout)
     except json.JSONDecodeError as e:
@@ -64,10 +72,10 @@ def run_bandit(repo_dir: Path) -> list[Finding]:
         severity_map = {"HIGH": "error", "MEDIUM": "warning", "LOW": "info"}
         
         findings.append(Finding(
-            file=str(Path(item["filename"]).relative_to(repo_dir)).replace("\\", "/"),
+            file=_get_relative_path(item["filename"], repo_dir),
             line=item["line_number"],
             column=item["col_offset"],
-            code=item["test_id"], # e.g., B101
+            code=item["test_id"],
             message=item["issue_text"],
             severity=severity_map.get(item["issue_severity"], "warning"),
             tool="bandit"
