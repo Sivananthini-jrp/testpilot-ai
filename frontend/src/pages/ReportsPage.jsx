@@ -4,7 +4,8 @@ export default function ReportsPage() {
   const [reports, setReports] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/dashboard/reports')
+    // Pointing to the live Render backend
+    fetch('https://testpilot-ai-qhv5.onrender.com/dashboard/reports')
       .then(res => res.json())
       .then(data => setReports(data))
       .catch(console.error);
