@@ -20,4 +20,4 @@ async def get_reports():
         except Exception as e:
             log.error(f"Failed to read report {file}: {e}")
             
-    return reports
+    return REPORTS_DB
