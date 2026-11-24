@@ -8,17 +8,32 @@ export default function TestGenerationModal({ result, loading, onClose }) {
 
   if (!loading && !result) return null;
 
-  const handleExecute = async () => {
+    const handleExecute = async () => {
     setExecuting(true);
     setExecutionResult(null);
     try {
-      const res = await fetch('http://localhost:8000/execute/test', {
+      const res = await fetch('https://testpilot-ai-qhv5.onrender.com/execute/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_code: result.code, source_code: result.source_code })
       });
       const data = await res.json();
       setExecutionResult(data);
+
+      // Save the report to the database
+      await fetch('https://testpilot-ai-qhv5.onrender.com/execute/save-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          repo_id: result.repo_id,
+          function_name: result.function_name,
+          passed: data.passed,
+          stdout: data.stdout,
+          stderr: data.stderr,
+          duration: data.duration
+        })
+      });
+      
     } catch (err) {
       alert("Execution failed: " + err.message);
     } finally {
