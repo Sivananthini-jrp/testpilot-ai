@@ -11,27 +11,38 @@ export default function AnalysisDashboard({ analysis }) {
 
   const { repo_id, project_types, languages, python_files, total_functions, total_classes, files, high_complexity_functions, findings = [] } = analysis;
 
-  const handleGenerate = async (file, functionName) => {
+    const handleGenerate = async (file, functionName) => {
     setModalOpen(true);
     setLoading(true);
     setTestResult(null);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
     try {
       const res = await fetch('https://testpilot-ai-qhv5.onrender.com/generate/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repo_id, file, function_name: functionName })
+        body: JSON.stringify({ repo_id, file, function_name: functionName }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error('Generation failed');
       const data = await res.json();
       setTestResult(data);
     } catch (err) {
-      alert(err.message);
+      if (err.name === 'AbortError') {
+        alert("Request timed out. The server might be asleep. Please try again.");
+      } else {
+        alert(err.message);
+      }
       setModalOpen(false);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto pb-10">
       {/* Repo Info */}
