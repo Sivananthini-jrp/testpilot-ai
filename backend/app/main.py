@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import engine, Base
-import app.models  # Ensures models are loaded before creating tables
+import app.models
 
 # Create tables in Neon
 Base.metadata.create_all(bind=engine)
@@ -19,19 +19,18 @@ from app.api.routes.dashboard import router as dashboard_router
 logging.basicConfig(level=settings.log_level)
 logger = logging.getLogger("testpilot")
 
-# Initialize FastAPI
 app = FastAPI(title="TestPilot AI", version="0.1.0")
 
-# CORS Middleware
+# --- TEMPORARY CORS FIX ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
+    allow_origins=["*"],        # Allow all origins to bypass CORS errors
+    allow_credentials=False,    # MUST be False when origins is "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# ---------------------------
 
-# Include Routers
 app.include_router(repositories_router)
 app.include_router(generation_router)
 app.include_router(execution_router)
