@@ -1,15 +1,13 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-  // Initialize from localStorage if it exists
   const [activeAnalysis, setActiveAnalysisState] = useState(() => {
     const saved = localStorage.getItem('testpilot_active_analysis');
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Wrap the setter to also save to localStorage
   const setActiveAnalysis = (data) => {
     setActiveAnalysisState(data);
     if (data) {
@@ -19,7 +17,6 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Clear function
   const clearAnalysis = () => {
     setActiveAnalysis(null);
   };
