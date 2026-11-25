@@ -1,6 +1,5 @@
-export const BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}`
-  : '/api';
+// frontend/src/api/client.js
+export const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export async function uploadRepository(file) {
   const form = new FormData();
