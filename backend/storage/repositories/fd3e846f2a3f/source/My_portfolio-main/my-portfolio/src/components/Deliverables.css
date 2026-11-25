@@ -1,0 +1,141 @@
+.deliverables {
+  background: var(--bg);
+  color: var(--ink);
+  padding: clamp(3.5rem, 9vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow--center {
+  text-align: center;
+}
+
+.deliverables__heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.8rem, 3.4vw, 2.5rem);
+  text-align: center;
+  margin: 0 0 0.75rem;
+}
+
+.deliverables__sub {
+  text-align: center;
+  color: var(--muted);
+  max-width: 46ch;
+  margin: 0 auto 3.5rem;
+  line-height: 1.6;
+}
+
+/* ---------- LEDGER GRID ----------
+   A flat, hairline-ruled index instead of another
+   bordered-card grid — reads like a document catalog. */
+.ledger {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.ledger__cell {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 1.75rem 1.5rem;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.ledger__cell:hover {
+  background: var(--surface);
+}
+
+.ledger__cell::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: var(--accent);
+  transition: height 0.25s ease;
+}
+
+.ledger__cell:hover::before {
+  height: 100%;
+}
+
+.ledger__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.ledger__index {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--line);
+}
+
+.ledger__code {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0.25rem 0.55rem;
+  border-radius: 2px;
+}
+
+.ledger__title {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 0.6rem;
+  color: var(--ink);
+}
+
+.ledger__blurb {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+}
+
+.ledger__cell:hover .ledger__blurb,
+.ledger__cell:focus-within .ledger__blurb {
+  max-height: 6rem;
+  opacity: 1;
+  margin-top: 0.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ledger__blurb,
+  .ledger__cell::before {
+    transition: none;
+  }
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 860px) {
+  .ledger {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ledger {
+    grid-template-columns: 1fr;
+  }
+
+  .ledger__blurb {
+    max-height: 6rem;
+    opacity: 1;
+    margin-top: 0.2rem;
+  }
+}

@@ -14,4 +14,14 @@ async def get_stats(db: Session = Depends(get_db)):
 @router.get("/reports")
 async def get_reports(db: Session = Depends(get_db)):
     reports = db.query(models.TestReport).order_by(models.TestReport.created_at.desc()).limit(50).all()
-    return [{"id": r.id, "repo_id": r.repo_id, "function_name": r.function_name, "passed": r.passed, "stdout": r.stdout, "stderr": r.stderr, "timestamp": r.created_at.isoformat()} for r in reports]
+    return [
+        {
+            "id": r.id,
+            "repo_id": r.repo_id,
+            "function_name": r.function_name,
+            "passed": r.passed,
+            "stdout": r.stdout,
+            "stderr": r.stderr,
+            "timestamp": r.created_at.isoformat()
+        } for r in reports
+    ]

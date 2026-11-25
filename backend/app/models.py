@@ -4,9 +4,9 @@ from app.database import Base
 
 class Repository(Base):
     __tablename__ = "repositories"
-    id = Column(String, primary_key=True, index=True) # repo_id
-    project_types = Column(String) # JSON string
-    languages = Column(String) # JSON string
+    id = Column(String, primary_key=True, index=True)
+    project_types = Column(String)
+    languages = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class TestReport(Base):

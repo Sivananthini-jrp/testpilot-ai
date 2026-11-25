@@ -4,16 +4,13 @@ import { uploadRepository } from '../api/client';
 export function useAnalysis() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
 
   const run = useCallback(async (file) => {
     setLoading(true);
     setError(null);
-    setAnalysis(null);
     try {
       const data = await uploadRepository(file);
-      setAnalysis(data);
-      return data;
+      return data; // <-- Return the data so RepositoryPage can use it
     } catch (e) {
       setError(e.message || 'Upload failed');
       return null;
@@ -22,5 +19,5 @@ export function useAnalysis() {
     }
   }, []);
 
-  return { loading, error, analysis, run };
+  return { loading, error, run };
 }

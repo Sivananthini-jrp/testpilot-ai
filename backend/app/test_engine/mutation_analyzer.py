@@ -30,28 +30,22 @@ class SingleMutationTransformer(ast.NodeTransformer):
 
 
 def run_mutation_testing(source_code: str, test_code: str) -> dict:
-    # 1. Syntax check for test code
     try:
         ast.parse(test_code)
     except SyntaxError:
-        log.warning("Test code has syntax errors. Cannot run mutation testing.")
         return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "Test code has syntax errors."}
 
-    # 2. Parse source code
     try:
         tree = ast.parse(source_code)
     except SyntaxError:
         return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "Source code has syntax errors."}
 
-    # 3. Check if there is anything to mutate
     tester = SingleMutationTransformer()
     tester.visit(tree)
     if not tester.mutated:
         return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "No mutable operators found in source."}
 
-    total_mutants = 1 # We only test the first mutation point to keep it fast
-
-    # 4. Run original code to ensure test passes
+    total_mutants = 1 
     combined_code = source_code + "\n\n" + test_code
     
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -59,33 +53,36 @@ def run_mutation_testing(source_code: str, test_code: str) -> dict:
         test_file = temp_path / "combined_test.py"
         
         test_file.write_text(combined_code, encoding="utf-8")
-        base_result = subprocess.run(
-            [sys.executable, "-m", "pytest", str(test_file), "-q"],
-            capture_output=True, text=True, cwd=temp_dir
-        )
         
-        # If original test fails, mutation testing is invalid
+        try:
+            base_result = subprocess.run(
+                [sys.executable, "-m", "pytest", str(test_file), "-q"],
+                capture_output=True, text=True, cwd=temp_dir, timeout=10
+            )
+        except subprocess.TimeoutExpired:
+            return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "Original test timed out."}
+        
         if base_result.returncode != 0:
             log.warning("Original test failed. Cannot run mutation testing.")
-            return {"score": 0.0, "killed": 0, "survived": total_mutants, "total": total_mutants, "error": "Original test failed."}
+            # FIX: Return 0 total instead of 1 survived
+            return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "Original test failed."}
 
-        # 5. Apply mutation
         mutant_tree = ast.parse(source_code)
         mutator = SingleMutationTransformer()
         mutant_tree = mutator.visit(mutant_tree)
         
         mutated_source = ast.unparse(mutant_tree)
         mutant_code = mutated_source + "\n\n" + test_code
-        
         test_file.write_text(mutant_code, encoding="utf-8")
         
-        # 6. Run test on mutant
-        mutant_result = subprocess.run(
-            [sys.executable, "-m", "pytest", str(test_file), "-q"],
-            capture_output=True, text=True, cwd=temp_dir
-        )
+        try:
+            mutant_result = subprocess.run(
+                [sys.executable, "-m", "pytest", str(test_file), "-q"],
+                capture_output=True, text=True, cwd=temp_dir, timeout=10
+            )
+        except subprocess.TimeoutExpired:
+            return {"score": 0.0, "killed": 0, "survived": 0, "total": 0, "error": "Mutant test timed out."}
         
-        # If test fails on mutant, it's killed (good!)
         killed = 1 if mutant_result.returncode != 0 else 0
         survived = total_mutants - killed
         score = (killed / total_mutants) * 100

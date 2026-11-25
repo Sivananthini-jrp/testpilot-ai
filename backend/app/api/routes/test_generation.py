@@ -12,14 +12,17 @@ router = APIRouter(prefix="/generate", tags=["generation"])
 @router.post("/test", response_model=GeneratedTestOut)
 async def generate_test(req: GenerateTestRequest):
     repo_dir = settings.upload_dir / req.repo_id / "source"
-    file_path = repo_dir / req.file
+    file_path = (repo_dir / req.file).resolve()
     
+    # SECURITY FIX: Path Traversal protection
+    if not file_path.is_relative_to(repo_dir.resolve()):
+        raise HTTPException(400, "Invalid file path")
+        
     if not file_path.exists():
         raise HTTPException(404, "File not found in repository")
         
     source_code = file_path.read_text(encoding="utf-8")
     
-    # 1. Extract ONLY the specific function using AST
     try:
         tree = ast.parse(source_code)
     except SyntaxError:
@@ -34,21 +37,19 @@ async def generate_test(req: GenerateTestRequest):
     if not function_source:
         raise HTTPException(404, f"Function '{req.function_name}' not found in file")
 
-    # 2. Ask LLM to generate test
     try:
         generated_code = await generate_test_code(function_source, "None")
     except Exception as e:
         log.error(f"LLM Generation failed: {e}")
         raise HTTPException(500, f"AI Generation failed: {str(e)}")
         
-    # 3. Validate the generated code
     is_valid, error_msg = validate_python_syntax(generated_code)
     
     return GeneratedTestOut(
         function_name=req.function_name,
         file=req.file,
         code=generated_code,
-        source_code=function_source, # <-- Add this
+        source_code=function_source,
         is_valid=is_valid,
         error_message=error_msg
     )

@@ -1,6 +1,6 @@
-const BASE = import.meta.env.VITE_API_URL
+export const BASE = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}`
-  : '/api'; // <--- Fallback to the proxy prefix
+  : '/api';
 
 export async function uploadRepository(file) {
   const form = new FormData();

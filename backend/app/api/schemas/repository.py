@@ -75,6 +75,8 @@ class GeneratedTestOut(BaseModel):
 class ExecuteTestRequest(BaseModel):
     test_code: str
     source_code: str = ""
+    repo_id: str | None = None
+    function_name: str | None = None
 
 
 class ExecutionResultOut(BaseModel):

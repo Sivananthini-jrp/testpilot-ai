@@ -1,0 +1,98 @@
+.resume {
+  background: var(--bg);
+  color: var(--ink);
+  padding: clamp(3.5rem, 9vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow--center {
+  text-align: center;
+}
+
+.resume__sub {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+/* ---------- TICKET / PASS ----------
+   A perforated top edge and a dashed tear-line above the
+   action turn this into a boarding-pass for the résumé
+   instead of another plain rounded card. */
+.pass {
+  position: relative;
+  max-width: 620px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3rem 2.5rem 2.25rem;
+  text-align: center;
+}
+
+.pass::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-image: radial-gradient(circle at 12px 0, var(--bg) 6px, transparent 6.5px);
+  background-size: 24px 10px;
+  background-repeat: repeat-x;
+}
+
+.pass__summary {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 46ch;
+  margin: 0 auto 2rem;
+}
+
+.pass__summary strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pass__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #06201c;
+  background: var(--accent);
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.pass__cta::before {
+  content: "";
+  position: absolute;
+  top: -1.5rem;
+  left: -2.5rem;
+  right: -2.5rem;
+  border-top: 1px dashed var(--line);
+}
+
+.pass__cta svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.pass__cta:hover,
+.pass__cta:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px var(--accent-dim);
+}
+
+.pass__cta:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}

@@ -33,11 +33,9 @@ export default function AnalysisDashboard({ analysis }) {
   };
 
   return (
-    // The Bento Grid
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto pb-10">
-      
       {/* Repo Info */}
-      <div className="col-span-1 md:col-span-2 bg-dark-panel border border-dark-border rounded-2xl p-6 shadow-lg">
+      <div className="col-span-1 md:col-span-2 bg-[#171a21] border border-[#2a3039] rounded-2xl p-6 shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase m-0">Repository Details</h3>
           <span className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-xs font-semibold">{repo_id}</span>
@@ -53,17 +51,17 @@ export default function AnalysisDashboard({ analysis }) {
       <MetricCard value={findings.length} label="Static Issues" icon="⚠️" color={findings.length > 0 ? "text-red-400" : "text-green-400"} />
 
       {/* Files & Functions */}
-      <div className="col-span-1 md:col-span-2 md:row-span-2 bg-dark-panel border border-dark-border rounded-2xl p-6 shadow-lg flex flex-col">
+      <div className="col-span-1 md:col-span-2 md:row-span-2 bg-[#171a21] border border-[#2a3039] rounded-2xl p-6 shadow-lg flex flex-col">
         <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-4 m-0">Files & Functions</h3>
         <div className="overflow-y-auto pr-2 space-y-4 flex-1 max-h-[500px]">
           {files.map((f) => (
-            <div key={f.file} className="border-b border-dark-border pb-4 last:border-0">
+            <div key={f.file} className="border-b border-[#2a3039] pb-4 last:border-0">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-blue-400 font-mono text-xs">{f.file}</span>
                 <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full text-[10px] font-semibold">{f.functions.length} fn</span>
               </div>
               {f.functions.length > 0 && (
-                <div className="flex flex-col gap-2 ml-3 border-l border-dark-border pl-3">
+                <div className="flex flex-col gap-2 ml-3 border-l border-[#2a3039] pl-3">
                   {f.functions.map(fn => (
                     <div key={fn.name} className="flex justify-between items-center group">
                       <code className="text-xs text-gray-400 font-mono">def {fn.name}()</code>
@@ -84,16 +82,15 @@ export default function AnalysisDashboard({ analysis }) {
 
       {/* Right Column */}
       <div className="col-span-1 md:col-span-2 flex flex-col gap-4">
-        
         {/* Complexity */}
-        <div className="bg-dark-panel border border-dark-border rounded-2xl p-6 shadow-lg flex-1">
+        <div className="bg-[#171a21] border border-[#2a3039] rounded-2xl p-6 shadow-lg flex-1">
           <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-4 m-0">High Complexity</h3>
           {high_complexity_functions.length === 0 ? (
             <p className="text-sm text-gray-500 m-0">No complex functions detected.</p>
           ) : (
             <ul className="space-y-2 m-0 p-0 list-none">
               {high_complexity_functions.slice(0, 5).map((fn, i) => (
-                <li key={i} className="flex justify-between items-center border-b border-dark-border py-2 last:border-0 text-sm">
+                <li key={i} className="flex justify-between items-center border-b border-[#2a3039] py-2 last:border-0 text-sm">
                   <span className="text-gray-300">{fn.name}</span>
                   <span className="bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full text-[10px] font-semibold">Score: {fn.complexity}</span>
                 </li>
@@ -103,19 +100,20 @@ export default function AnalysisDashboard({ analysis }) {
         </div>
 
         {/* Static Findings */}
-        <div className="bg-dark-panel border border-dark-border rounded-2xl p-6 shadow-lg flex-1">
+        <div className="bg-[#171a21] border border-[#2a3039] rounded-2xl p-6 shadow-lg flex-1">
           <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-4 m-0">Static Findings</h3>
           <div className="max-h-[200px] overflow-y-auto pr-2">
              <StaticFindings findings={findings} />
           </div>
         </div>
-
       </div>
 
+      {/* MODAL RENDER */}
       {modalOpen && (
         <TestGenerationModal 
           result={testResult} 
           loading={loading} 
+          repoId={repo_id} 
           onClose={() => setModalOpen(false)} 
         />
       )}
@@ -125,7 +123,7 @@ export default function AnalysisDashboard({ analysis }) {
 
 function MetricCard({ value, label, icon, color }) {
   return (
-    <div className="bg-dark-panel border border-dark-border rounded-2xl p-5 flex items-center gap-4 shadow-lg hover:border-gray-600 transition-colors cursor-default">
+    <div className="bg-[#171a21] border border-[#2a3039] rounded-2xl p-5 flex items-center gap-4 shadow-lg">
       <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl font-bold ${color}`}>
         {icon}
       </div>

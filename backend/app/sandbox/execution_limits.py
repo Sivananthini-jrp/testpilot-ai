@@ -22,21 +22,18 @@ class MutationResult:
         self.survived = survived
         self.total = total
 
-def execute_pytest_sandbox(test_code: str, source_code: str = "", timeout_seconds: int = 10) -> SandboxResult:
-    """
-    Runs pytest. If source_code is provided, it writes it to a file so the test can import it.
-    """
+def execute_pytest_sandbox(test_code: str, source_code: str = "", timeout_seconds: int = 30) -> SandboxResult:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         test_file = temp_path / "test_generated.py"
         report_file = temp_path / "report.json"
         
-        test_file.write_text(test_code, encoding="utf-8")
-        
-        # If source code is provided, write it to module.py
+        # FIX: Prepend source code so the test can access the function directly
+        combined_code = test_code
         if source_code:
-            source_file = temp_path / "module_under_test.py"
-            source_file.write_text(source_code, encoding="utf-8")
+            combined_code = source_code + "\n\n" + test_code
+            
+        test_file.write_text(combined_code, encoding="utf-8")
 
         try:
             result = subprocess.run(
@@ -49,9 +46,7 @@ def execute_pytest_sandbox(test_code: str, source_code: str = "", timeout_second
             stdout = result.stdout
             stderr = result.stderr
         except subprocess.TimeoutExpired:
-            return SandboxResult(
-                passed=False, stdout="", stderr="Execution timed out.", report={}
-            )
+            return SandboxResult(passed=False, stdout="", stderr="Execution timed out.", report={})
 
         report_data = {}
         if report_file.exists():
@@ -60,19 +55,16 @@ def execute_pytest_sandbox(test_code: str, source_code: str = "", timeout_second
             except json.JSONDecodeError:
                 pass
 
-        passed = report_data.get("success", False)
+        # FIX: Fallback to returncode if pytest-json-report plugin is missing
+        passed = report_data.get("success", result.returncode == 0)
         
         return SandboxResult(passed=passed, stdout=stdout, stderr=stderr, report=report_data)
 
 
 def execute_mutation_sandbox(source_code: str, test_code: str, timeout_seconds: int = 30) -> MutationResult:
-    """
-    Runs custom AST mutation testing.
-    """
     log.info("Running custom AST mutation testing...")
     try:
         result = run_mutation_testing(source_code, test_code)
-        
         return MutationResult(
             score=result["score"],
             killed=result["killed"],

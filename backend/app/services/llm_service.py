@@ -10,7 +10,6 @@ client = AsyncOpenAI(
 )
 
 async def generate_test_code(function_source: str, context: str) -> str:
-    # Upgraded System Prompt for Sandbox Isolation
     system_prompt = """You are an expert Python QA engineer.
 Write a valid, isolated `pytest` unit test for the provided function.
 
@@ -21,7 +20,6 @@ RULES:
 4. If the function uses external dependencies, mock them using `unittest.mock`.
 5. Cover edge cases and expected behavior based on the code."""
 
-    # Use string concatenation to avoid f-string brace conflicts
     user_prompt = (
         "Here is the source code of the function to test:\n\n"
         + function_source 
@@ -42,12 +40,10 @@ RULES:
     
     raw_code = response.choices[0].message.content.strip()
     
-    # Cleanup markdown if AI ignores instructions
-    if raw_code.startswith("```python"):
-        raw_code = raw_code[9:]
-    if raw_code.startswith("```"):
-        raw_code = raw_code[3:]
-    if raw_code.endswith("```"):
-        raw_code = raw_code[:-3]
+    # FIX: Safer markdown stripping
+    if "```python" in raw_code:
+        raw_code = raw_code.split("```python")[1].split("```")[0]
+    elif "```" in raw_code:
+        raw_code = raw_code.split("```")[1].split("```")[0]
         
     return raw_code.strip()

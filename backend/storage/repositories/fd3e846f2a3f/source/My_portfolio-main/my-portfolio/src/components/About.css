@@ -1,0 +1,230 @@
+/* =========================================================
+   ABOUT SECTION
+   Uses design tokens defined in Home.css
+   ========================================================= */
+
+.about-section {
+  background: var(--bg);
+  color: var(--ink);
+  padding: clamp(3.5rem, 9vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------- EYEBROW ---------- */
+
+.eyebrow--center {
+  text-align: center;
+}
+
+/* ---------- HEADING ---------- */
+
+.about-section__heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  line-height: 1.4;
+  text-align: center;
+  max-width: 46ch;
+  margin: 0 auto 3.5rem;
+  color: var(--muted);
+}
+
+.about-section__heading em {
+  color: var(--ink);
+  font-style: normal;
+}
+
+/* ---------- MAIN GRID ---------- */
+
+.about-section__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* ---------- ABOUT CONTENT ---------- */
+
+.about-section__copy {
+  min-width: 0;
+}
+
+.about-section__copy p {
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 0 0 1.1rem;
+  font-size: 0.98rem;
+}
+
+.about-section__copy p:last-of-type {
+  margin-bottom: 0;
+}
+
+.about-section__copy strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- CALLOUT ---------- */
+
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  margin-top: 1.75rem;
+  padding: 1rem 1.25rem;
+
+  background: var(--accent-dim);
+  border-left: 2px solid var(--accent);
+  border-radius: 2px;
+
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.callout__check {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.about-section__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-content: start;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+
+  min-height: 120px;
+  padding: 1.5rem 1.35rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.stat-card__value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  color: var(--accent);
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .about-section__grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .about-section__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .about-section {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .about-section__heading {
+    margin-bottom: 2.5rem;
+    font-size: 1.35rem;
+  }
+
+  .about-section__copy p {
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .about-section__grid {
+    gap: 2rem;
+  }
+
+  .about-section__stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    min-height: 105px;
+    padding: 1.2rem 1rem;
+  }
+
+  .stat-card__value {
+    font-size: 1.7rem;
+  }
+
+  .stat-card__label {
+    font-size: 0.65rem;
+  }
+
+  .callout {
+    font-size: 0.85rem;
+    padding: 0.9rem 1rem;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .about-section__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    min-height: auto;
+    padding: 1.2rem;
+  }
+
+  .stat-card__value {
+    font-size: 1.8rem;
+  }
+
+  .stat-card__label {
+    font-size: 0.7rem;
+  }
+}
