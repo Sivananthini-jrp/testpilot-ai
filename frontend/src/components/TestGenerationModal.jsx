@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const BACKEND_URL = 'https://testpilot-ai-qhv5.onrender.com';
+
 export default function TestGenerationModal({ result, loading, onClose, repoId }) {
   const [executing, setExecuting] = useState(false);
   const [executionResult, setExecutionResult] = useState(null);
@@ -11,12 +13,11 @@ export default function TestGenerationModal({ result, loading, onClose, repoId }
   const handleExecute = async () => {
     setExecuting(true);
     setExecutionResult(null);
-    
-    // PROOF: Check your browser console for this log!
     console.log("SENDING REPO ID TO BACKEND:", repoId);
 
     try {
-      const res = await fetch('http://localhost:8000/execute/test', {
+      // CORRECT URL: /execute/test
+      const res = await fetch(`${BACKEND_URL}/execute/test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -39,7 +40,8 @@ export default function TestGenerationModal({ result, loading, onClose, repoId }
     setMutating(true);
     setMutationResult(null);
     try {
-      const res = await fetch('https://testpilot-ai-qhv5.onrender.com/generate/test',{
+      // CORRECT URL: /evaluate/mutation
+      const res = await fetch(`${BACKEND_URL}/evaluate/mutation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_code: result.code, source_code: result.source_code })
@@ -94,6 +96,12 @@ export default function TestGenerationModal({ result, loading, onClose, repoId }
                     {executionResult.passed ? '✅ Tests Passed' : '❌ Tests Failed'}
                   </h4>
                   <pre className="m-0 text-xs text-gray-300 font-mono whitespace-pre-wrap">{executionResult.stdout}</pre>
+                </div>
+              )}
+
+              {mutationResult && (
+                <div className="mt-4 p-4 rounded-lg border border-purple-500/20 bg-purple-500/10">
+                  <h4 className="m-0 text-purple-400 font-semibold">🧬 Mutation Score: {mutationResult.score.toFixed(1)}%</h4>
                 </div>
               )}
             </>

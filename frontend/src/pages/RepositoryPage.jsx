@@ -4,25 +4,33 @@ import AnalysisDashboard from '../components/AnalysisDashboard';
 import { useAnalysis } from '../hooks/useAnalysis';
 import { useAppContext } from '../context/AppContext';
 
+const BACKEND_URL = 'https://testpilot-ai-qhv5.onrender.com';
+
 export default function RepositoryPage() {
   const { loading, error, run } = useAnalysis();
   const { activeAnalysis, setActiveAnalysis, clearAnalysis } = useAppContext();
   const [pastRepos, setPastRepos] = useState([]);
 
-  // Fetch past repos on load
   useEffect(() => {
-    fetch('https://testpilot-ai-qhv5.onrender.com/generate/test')
-      .then(res => res.json())
-      .then(data => setPastRepos(data))
-      .catch(console.error);
+    // CORRECT ENDPOINT: /repositories/list
+    fetch(`${BACKEND_URL}/repositories/list`)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) setPastRepos(data);
+        else setPastRepos([]);
+      })
+      .catch(err => {
+        console.error(err);
+        setPastRepos([]); 
+      });
   }, []);
 
-  // When a new file is uploaded, update the Context
   const handleUpload = async (file) => {
-    const result = await run(file); // Assuming your hook returns the data
-    if (result) {
-      setActiveAnalysis(result);
-    }
+    const result = await run(file);
+    if (result) setActiveAnalysis(result);
   };
 
   const handleSelectRepo = async (e) => {
@@ -33,7 +41,7 @@ export default function RepositoryPage() {
     }
     
     try {
-      const res = await fetch(`http://localhost:8000/repositories/${repoId}`);
+      const res = await fetch(`${BACKEND_URL}/repositories/${repoId}`);
       if (!res.ok) throw new Error("Failed to load repo.");
       const data = await res.json();
       setActiveAnalysis(data);
@@ -70,12 +78,10 @@ export default function RepositoryPage() {
         )}
       </div>
 
-      {/* Hide the uploader if a repo is currently loaded */}
       {!activeAnalysis && (
         <RepositoryUploader onUpload={handleUpload} loading={loading} error={error} />
       )}
       
-      {/* Show the Bento Grid if a repo is loaded */}
       {activeAnalysis && <AnalysisDashboard analysis={activeAnalysis} />}
     </div>
   );
