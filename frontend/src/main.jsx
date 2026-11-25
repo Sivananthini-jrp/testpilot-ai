@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { AppProvider } from './context/AppContext.jsx';
-import './index.css'; // OR './styles/index.css'
+import './styles/index.css'; // OR './styles/index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
