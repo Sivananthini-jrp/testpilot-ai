@@ -16,7 +16,7 @@ export default function AnalysisDashboard({ analysis }) {
     setLoading(true);
     setTestResult(null);
     try {
-      const res = await fetch('http://localhost:8000/generate/test', {
+      const res = await fetch('https://testpilot-ai-qhv5.onrender.com/generate/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_id, file, function_name: functionName })

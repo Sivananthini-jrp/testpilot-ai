@@ -39,7 +39,7 @@ export default function TestGenerationModal({ result, loading, onClose, repoId }
     setMutating(true);
     setMutationResult(null);
     try {
-      const res = await fetch('http://localhost:8000/evaluate/mutation', {
+      const res = await fetch('https://testpilot-ai-qhv5.onrender.com/generate/test',{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ test_code: result.code, source_code: result.source_code })

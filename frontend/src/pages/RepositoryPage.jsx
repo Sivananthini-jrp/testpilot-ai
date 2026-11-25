@@ -11,7 +11,7 @@ export default function RepositoryPage() {
 
   // Fetch past repos on load
   useEffect(() => {
-    fetch('http://localhost:8000/repositories/list')
+    fetch('https://testpilot-ai-qhv5.onrender.com/generate/test')
       .then(res => res.json())
       .then(data => setPastRepos(data))
       .catch(console.error);
